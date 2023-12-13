@@ -12,3 +12,4 @@ class FirstSpiderSpider(scrapy.Spider):
             'text' : quote.css('span.text::text').get(),
             'author' : quote.css('small.author::text').get()
             }
+
