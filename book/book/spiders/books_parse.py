@@ -1,5 +1,6 @@
 import scrapy
-
+import json
+from scrapy import cmdline
 
 class BooksParseSpider(scrapy.Spider):
     name = "books_parse"
@@ -16,3 +17,18 @@ class BooksParseSpider(scrapy.Spider):
             }
 
             yield from response.follow_all(css="ul.pager a", callback=self.parse)
+
+def StartProject():
+    cmdline.execute("scrapy crawl books_parse -o book.json -t json".split())
+
+def ReadJson():
+    with open("book.json", 'r'):
+        data = json.load(file)
+
+    for elen in data:
+        price = (data["Price"][2:])
+    print(price)
+
+if __name__ == "__main__":
+    StartProject()
+
