@@ -1,6 +1,10 @@
 import scrapy
 import json
-from scrapy import cmdline
+import os
+from scrapy.crawler import CrawlerProcess
+import warnings
+from tqdm import tqdm
+import time
 
 class BooksParseSpider(scrapy.Spider):
     name = "books_parse"
@@ -18,17 +22,63 @@ class BooksParseSpider(scrapy.Spider):
 
             yield from response.follow_all(css="ul.pager a", callback=self.parse)
 
-def StartProject():
-    cmdline.execute("scrapy crawl books_parse -o book.json -t json".split())
 
-def ReadJson():
-    with open("book.json", 'r'):
+
+def StartProject():
+
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        runner = BooksParseSpider()
+    process = CrawlerProcess(settings={
+        "FEEDS": {
+            "book.json": {"format": "json"},
+        },
+    })
+
+    process.crawl(BooksParseSpider)
+    process.start()
+
+
+def Size_isempty():
+    isempty = os.stat('book.json').st_size
+    print(isempty)
+
+def clear_file():
+    with open("book.json", 'w') as file:
+        file.write("")
+    if os.stat('book.json').st_size == 0:
+        print("Чисто")
+    else:
+        print("Что пошло не так!")
+
+def ReadFile():
+    with open("book.json", 'r') as file:
         data = json.load(file)
 
     for elen in data:
         price = (data["Price"][2:])
     print(price)
 
-if __name__ == "__main__":
-    StartProject()
+def End():
+    print("Two option")
+
+menu = {'1' : StartProject, '2' : Size_isempty, '3' : clear_file, '4' : ReadFile, '5' : End}
+
+
+while True:
+
+    options = menu.keys()
+    for entry in options:
+        print(entry)
+
+    selection = input("Выберите опции: ")
+
+    if selection == '1' or selection == '2' or selection == '3' or selection == '4':
+        menu[selection]()
+    elif selection == '5':
+        print("Пока")
+        break
+    else:
+        print("Неправильный выбор. Попробуйте еще раз")
+
 
